@@ -1,0 +1,10 @@
+#!/bin/bash
+
+MAIN_NAME=lambda-handler
+
+cd $(dirname "$0")
+
+GOOS=linux go build $MAIN_NAME.go 
+
+zip $MAIN_NAME.zip $MAIN_NAME
+

@@ -5,8 +5,8 @@ phases:
       golang: 1.15
   build:
     commands:
-      - cd hello-world
-      - go build -o hello-world main.go
+      - cd website-watcher-app
+      - go build -o website-watcher-app main.go
       - cd ..
       - sam package --template-file template.yaml --s3-bucket codepipeline-applications --output-template-file packaged-template.yml
   post_build:

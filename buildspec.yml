@@ -6,6 +6,9 @@ phases:
   build:
     commands:
       - sam package --template-file template.yaml --s3-bucket codepipeline-applications --output-template-file packaged-template.yml
+  post_build:
+    commands:
+      - sam deploy --template-file packaged-template.yml --stack-name website-watcher-stack --capabilities CAPABILITY_IAM
 artifacts:
   files:
     - packaged-template.yml

@@ -17,6 +17,11 @@ Resources:
       CodeUri: website-watcher-app/
       Handler: website-watcher-app
       Runtime: go1.x
+      Events:
+        CWSchedule:
+          Type: Schedule
+          Properties:
+            Schedule: 'rate(1 day)'
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           BUCKET: !Ref WebsiteWatchBucket

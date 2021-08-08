@@ -1,4 +1,4 @@
-module website-watcher
+module github.com/mmessell/website-watcher
 
 go 1.16
 

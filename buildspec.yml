@@ -5,6 +5,7 @@ phases:
       golang: 1.15
   build:
     commands:
+      - sam build
       - sam package --template-file template.yaml --s3-bucket codepipeline-applications --output-template-file packaged-template.yml
   post_build:
     commands:

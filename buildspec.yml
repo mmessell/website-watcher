@@ -6,7 +6,7 @@ phases:
   build:
     commands:
       - cd hello-world
-      - go build main.go
+      - go build -o hello-world main.go
       - cd ..
       - sam package --template-file template.yaml --s3-bucket codepipeline-applications --output-template-file packaged-template.yml
   post_build:

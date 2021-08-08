@@ -1,18 +1,14 @@
 package business
 
-import (
-	"github.com/mmessell/website-watcher/outbound"
-)
-
 type MyResponse struct {
 	Message string `json:"Answer:"`
 }
 
 type WebsiteWatcher struct {
-	Wcr outbound.WatchConfigRepo
+	Wcr WatchConfigRepo
 }
 
-func NewWebsiteWatcher(wcr outbound.WatchConfigRepo) WebsiteWatcher {
+func NewWebsiteWatcher(wcr WatchConfigRepo) WebsiteWatcher {
 	return WebsiteWatcher{Wcr: wcr}
 }
 

@@ -1,4 +1,4 @@
-package outbound
+package business
 
 type WatchConfigRepo interface {
 	ListAll() []Person

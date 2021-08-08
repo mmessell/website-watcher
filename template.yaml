@@ -19,7 +19,11 @@ Resources:
       Runtime: go1.x
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
-          PARAM1: VALUE
+          BUCKET: !GetAtt WebsiteWatchBucket.BucketName
+  WebsiteWatchBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: website-watcher-bucket
 
 Outputs:
   WebsiteWatcherFunction:

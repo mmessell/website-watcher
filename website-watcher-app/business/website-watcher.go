@@ -1,20 +1,36 @@
 package business
 
-import "encoding/json"
-
-type MyResponse struct {
-	Message string `json:"Answer:"`
-}
+import (
+	"fmt"
+)
 
 type WebsiteWatcher struct {
-	wcr WatchConfigRepo
+	repo WebsiteRepo
 }
 
-func NewWebsiteWatcher(wcr WatchConfigRepo) WebsiteWatcher {
-	return WebsiteWatcher{wcr: wcr}
+func NewWebsiteWatcher(repo WebsiteRepo) WebsiteWatcher {
+	return WebsiteWatcher{repo: repo}
 }
 
-func (ww WebsiteWatcher) Run() (MyResponse, error) {
-	data, _ := json.Marshal(ww.wcr.ListAll())
-	return MyResponse{Message: string(data)}, nil
+func (ww WebsiteWatcher) Run() bool {
+
+	for _, website := range ww.repo.GetAllWebsites() {
+		state, exists := ww.repo.GetWebsiteState(website)
+
+		if exists {
+			fmt.Println("website " + website.Url + " has been visited: " + state)
+			// current state diff from old state
+			// diff:
+			// update state (Get current state, and put to s3)
+			// send emails
+			for _, email := range website.Emails {
+				fmt.Println("Send email to: " + email)
+			}
+		} else {
+			fmt.Println("website " + website.Url + " hasn't been visited: " + state)
+			// update state (Get current state, and put to s3)
+		}
+	}
+
+	return true
 }

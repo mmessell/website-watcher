@@ -25,10 +25,14 @@ func (repo WebsiteRepoImpl) GetAllWebsites() []business.Website {
 }
 
 func (repo WebsiteRepoImpl) GetWebsiteState(website business.Website) (string, bool) {
-	bytes, exists := repo.bucket.GetObject(website.GetKey())
+	bytes, exists := repo.bucket.GetObject(repo.getKeyWithOutputDir(website))
 	return string(bytes), exists
 }
 
-func (repo WebsiteRepoImpl) PutWebsiteState(state string) {
+func (repo WebsiteRepoImpl) PutWebsiteState(website business.Website, state string) {
+	repo.bucket.PutObject(repo.getKeyWithOutputDir(website), state)
+}
 
+func (repo WebsiteRepoImpl) getKeyWithOutputDir(website business.Website) string {
+	return "output/" + website.GetKey() + ".txt"
 }

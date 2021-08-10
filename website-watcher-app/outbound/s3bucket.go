@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"io/ioutil"
+	"strings"
 )
 
 type Bucket struct {
@@ -14,10 +15,21 @@ type Bucket struct {
 }
 
 func NewBucket(name string, region string) Bucket {
-	fmt.Println("NewBucket:name:" + name)
-	fmt.Println("NewBucket:region:" + region)
-
 	return Bucket{name: name, region: region}
+}
+
+func (bucket Bucket) PutObject(key string, state string) {
+	svc := bucket.initSession()
+
+	//func (c *S3) PutObject(input *PutObjectInput) (*PutObjectOutput, error)
+
+	_, err := svc.PutObject(&s3.PutObjectInput{
+		Bucket: aws.String(bucket.name),
+		Key:    aws.String(key),
+		Body:   aws.ReadSeekCloser(strings.NewReader(state)),
+	})
+
+	fmt.Println(err)
 }
 
 func (bucket Bucket) GetObject(key string) ([]byte, bool) {
@@ -27,6 +39,8 @@ func (bucket Bucket) GetObject(key string) ([]byte, bool) {
 		Bucket: aws.String(bucket.name),
 		Key:    aws.String(key),
 	})
+
+	fmt.Println(resp)
 
 	if err != nil {
 		return nil, false

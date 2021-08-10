@@ -16,6 +16,7 @@ func (ww WebsiteWatcher) Run() bool {
 
 	for _, website := range ww.repo.GetAllWebsites() {
 		state, exists := ww.repo.GetWebsiteState(website)
+		ww.repo.PutWebsiteState(website, "website")
 
 		if exists {
 			fmt.Println("website " + website.Url + " has been visited: " + state)

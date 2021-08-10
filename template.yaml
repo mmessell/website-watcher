@@ -1,8 +1,8 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   website-watcher
-  
+
   Sample SAM Template for website-watcher
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
@@ -25,11 +25,21 @@ Resources:
         CWSchedule:
           Type: Schedule
           Properties:
-            Schedule: 'rate(1 day)'
+            Schedule: "rate(1 day)"
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
           BUCKET: !Ref WebsiteWatchBucketName
           REGION: eu-central-1
+      Policies:
+        - AWSLambdaExecute
+        - AmazonSESFullAccess
+        - Version: "2012-10-17"
+          Statement:
+            - Effect: Allow
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: "arn:aws:s3:::website-watcher-bucket/*"
   WebsiteWatchBucket:
     Type: AWS::S3::Bucket
     Properties:

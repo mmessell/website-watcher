@@ -11,7 +11,7 @@ func HandleLambdaEvent() (bool, error) {
 	bucket := os.Getenv("BUCKET")
 	region := os.Getenv("REGION")
 
-	repo := outbound.NewWebsiteRepoImpl("website-watcher-bucket", region, "users-and-websites.json")
+	repo := outbound.NewWebsiteRepoImpl(bucket, region, "users-and-websites.json")
 	ww := business.NewWebsiteWatcher(repo)
 	return ww.Run(), nil
 }

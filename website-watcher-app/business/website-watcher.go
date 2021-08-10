@@ -24,30 +24,37 @@ func (ww WebsiteWatcher) Run() error {
 		return errors.New("Was not able to fetch all websites")
 	}
 
-	return ww.evaluateWebsites(websites)
-}
-
-func (ww WebsiteWatcher) evaluateWebsites(websites []Website) error {
-	for _, website := range websites {
-		oldState, _ := ww.repo.GetWebsiteState(website)
-
-		if oldState != "" {
-			log.Print("Website '" + website.Url + "' has been visited.")
-			curState, err := ww.updateCurrentState(website)
-
-			if err == nil && curState != oldState {
-				log.Print("State change for website '" + website.Url + "'")
-				for _, email := range website.Emails {
-					log.Print("Send email to: " + email)
-				}
-			}
-		} else {
-			log.Print("Website '" + website.Url + "' hasn't been visited.")
-			ww.updateCurrentState(website)
-		}
-	}
+	ww.evaluateWebsites(websites)
 
 	return nil
+}
+
+func (ww WebsiteWatcher) evaluateWebsites(websites []Website) {
+	for _, website := range websites {
+		logMsg := "---------- Evaluating '" + website.Url + "' ----------"
+		log.Print(logMsg)
+		ww.evaluateWebsite(website)
+		log.Print(strings.Repeat("-", len(logMsg)))
+	}
+}
+
+func (ww WebsiteWatcher) evaluateWebsite(website Website) {
+	oldState, _ := ww.repo.GetWebsiteState(website)
+
+	if oldState != "" {
+		log.Print("Website '" + website.Url + "' has been visited.")
+		curState, err := ww.updateCurrentState(website)
+
+		if err == nil && curState != oldState {
+			log.Print("State change for website '" + website.Url + "'")
+			for _, email := range website.Emails {
+				log.Print("Send email to: " + email)
+			}
+		}
+	} else {
+		log.Print("Website '" + website.Url + "' hasn't been visited.")
+		ww.updateCurrentState(website)
+	}
 }
 
 func (ww WebsiteWatcher) updateCurrentState(website Website) (string, error) {
@@ -73,7 +80,7 @@ func (ww WebsiteWatcher) updateCurrentState(website Website) (string, error) {
 }
 
 func (ww WebsiteWatcher) getCurrentWebsiteState(website Website) (string, error) {
-	websiteContent, err := ww.hc.Get()
+	websiteContent, err := ww.hc.Get(website.Url)
 
 	if err != nil {
 		log.Fatal("Could not get state for website: " + website.Url)

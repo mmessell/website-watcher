@@ -1,5 +1,5 @@
 package business
 
 type HttpClient interface {
-	Get() (string, error)
+	Get(url string) (string, error)
 }

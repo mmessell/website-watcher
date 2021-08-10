@@ -1,37 +1,47 @@
 package business
 
 import (
-	"fmt"
+	"errors"
+	"log"
 )
 
 type WebsiteWatcher struct {
 	repo WebsiteRepo
+	hc   HttpClient
 }
 
-func NewWebsiteWatcher(repo WebsiteRepo) WebsiteWatcher {
-	return WebsiteWatcher{repo: repo}
+func NewWebsiteWatcher(repo WebsiteRepo, hc HttpClient) WebsiteWatcher {
+	return WebsiteWatcher{repo: repo, hc: hc}
 }
 
-func (ww WebsiteWatcher) Run() bool {
+func (ww WebsiteWatcher) Run() error {
 
-	for _, website := range ww.repo.GetAllWebsites() {
-		state, exists := ww.repo.GetWebsiteState(website)
-		ww.repo.PutWebsiteState(website, "website")
+	websites, err := ww.repo.GetAllWebsites()
+	if err != nil {
+		log.Fatal(err)
+		return errors.New("Was not able to fetch all websites")
+	}
 
-		if exists {
-			fmt.Println("website " + website.Url + " has been visited: " + state)
-			// current state diff from old state
-			// diff:
-			// update state (Get current state, and put to s3)
-			// send emails
-			for _, email := range website.Emails {
-				fmt.Println("Send email to: " + email)
+	for _, website := range websites {
+		oldState, err := ww.repo.GetWebsiteState(website)
+
+		if err == nil {
+			log.Print("Website '" + website.Url + "' has been visited.")
+			curState, _ := ww.hc.Get()
+
+			if curState != oldState {
+				ww.repo.PutWebsiteState(website, curState)
+
+				for _, email := range website.Emails {
+					log.Print("Send email to: " + email)
+				}
 			}
 		} else {
-			fmt.Println("website " + website.Url + " hasn't been visited: " + state)
-			// update state (Get current state, and put to s3)
+			log.Print("Website '" + website.Url + "' hasn't been visited.")
+			curState, _ := ww.hc.Get()
+			ww.repo.PutWebsiteState(website, curState)
 		}
 	}
 
-	return true
+	return nil
 }

@@ -15,22 +15,26 @@ func NewWebsiteRepoImpl(bucketname string, regionname string, configfile string)
 	return WebsiteRepoImpl{bucket: bucket, configfile: configfile}
 }
 
-func (repo WebsiteRepoImpl) GetAllWebsites() []business.Website {
-	bytes, _ := repo.bucket.GetObject(repo.configfile)
+func (repo WebsiteRepoImpl) GetAllWebsites() ([]business.Website, error) {
+	bytes, err := repo.bucket.GetObject(repo.configfile)
+
+	if err != nil {
+		return nil, err
+	}
 
 	var websites []business.Website
 	json.Unmarshal(bytes, &websites)
 
-	return websites
+	return websites, nil
 }
 
-func (repo WebsiteRepoImpl) GetWebsiteState(website business.Website) (string, bool) {
-	bytes, exists := repo.bucket.GetObject(repo.getKeyWithOutputDir(website))
-	return string(bytes), exists
+func (repo WebsiteRepoImpl) GetWebsiteState(website business.Website) (string, error) {
+	bytes, err := repo.bucket.GetObject(repo.getKeyWithOutputDir(website))
+	return string(bytes), err
 }
 
-func (repo WebsiteRepoImpl) PutWebsiteState(website business.Website, state string) {
-	repo.bucket.PutObject(repo.getKeyWithOutputDir(website), state)
+func (repo WebsiteRepoImpl) PutWebsiteState(website business.Website, state string) error {
+	return repo.bucket.PutObject(repo.getKeyWithOutputDir(website), state)
 }
 
 func (repo WebsiteRepoImpl) getKeyWithOutputDir(website business.Website) string {

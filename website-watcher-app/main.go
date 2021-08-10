@@ -7,13 +7,20 @@ import (
 	"os"
 )
 
-func HandleLambdaEvent() (bool, error) {
+func HandleLambdaEvent() (string, error) {
 	bucket := os.Getenv("BUCKET")
 	region := os.Getenv("REGION")
 
 	repo := outbound.NewWebsiteRepoImpl(bucket, region, "users-and-websites.json")
-	ww := business.NewWebsiteWatcher(repo)
-	return ww.Run(), nil
+	hc := outbound.HttpClientImpl{}
+	ww := business.NewWebsiteWatcher(repo, hc)
+	err := ww.Run()
+
+	if err != nil {
+		return "ERROR", err
+	} else {
+		return "SUCCESS", err
+	}
 }
 
 func main() {

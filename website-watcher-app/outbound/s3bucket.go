@@ -1,7 +1,6 @@
 package outbound
 
 import (
-	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -18,10 +17,8 @@ func NewBucket(name string, region string) Bucket {
 	return Bucket{name: name, region: region}
 }
 
-func (bucket Bucket) PutObject(key string, state string) {
+func (bucket Bucket) PutObject(key string, state string) error {
 	svc := bucket.initSession()
-
-	//func (c *S3) PutObject(input *PutObjectInput) (*PutObjectOutput, error)
 
 	_, err := svc.PutObject(&s3.PutObjectInput{
 		Bucket: aws.String(bucket.name),
@@ -29,10 +26,10 @@ func (bucket Bucket) PutObject(key string, state string) {
 		Body:   aws.ReadSeekCloser(strings.NewReader(state)),
 	})
 
-	fmt.Println(err)
+	return err
 }
 
-func (bucket Bucket) GetObject(key string) ([]byte, bool) {
+func (bucket Bucket) GetObject(key string) ([]byte, error) {
 	svc := bucket.initSession()
 
 	resp, err := svc.GetObject(&s3.GetObjectInput{
@@ -40,19 +37,11 @@ func (bucket Bucket) GetObject(key string) ([]byte, bool) {
 		Key:    aws.String(key),
 	})
 
-	fmt.Println(resp)
-
 	if err != nil {
-		return nil, false
+		return nil, err
 	}
 
-	s3objectBytes, err := ioutil.ReadAll(resp.Body)
-
-	if err != nil {
-		return nil, false
-	}
-
-	return s3objectBytes, true
+	return ioutil.ReadAll(resp.Body)
 }
 
 func (bucket Bucket) initSession() *s3.S3 {

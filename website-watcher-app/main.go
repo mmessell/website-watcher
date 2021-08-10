@@ -13,7 +13,8 @@ func HandleLambdaEvent() (string, error) {
 
 	repo := outbound.NewWebsiteRepoImpl(bucket, region, "users-and-websites.json")
 	hc := outbound.HttpClientImpl{}
-	ww := business.NewWebsiteWatcher(repo, hc)
+	ec := outbound.EmailClientImpl{Region: region}
+	ww := business.NewWebsiteWatcher(repo, hc, ec)
 	err := ww.Run()
 
 	if err != nil {

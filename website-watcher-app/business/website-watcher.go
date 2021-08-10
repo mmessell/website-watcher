@@ -9,10 +9,11 @@ import (
 type WebsiteWatcher struct {
 	repo WebsiteRepo
 	hc   HttpClient
+	ec   EmailClient
 }
 
-func NewWebsiteWatcher(repo WebsiteRepo, hc HttpClient) WebsiteWatcher {
-	return WebsiteWatcher{repo: repo, hc: hc}
+func NewWebsiteWatcher(repo WebsiteRepo, hc HttpClient, ec EmailClient) WebsiteWatcher {
+	return WebsiteWatcher{repo: repo, hc: hc, ec: ec}
 }
 
 func (ww WebsiteWatcher) Run() error {
@@ -47,14 +48,27 @@ func (ww WebsiteWatcher) evaluateWebsite(website Website) {
 
 		if err == nil && curState != oldState {
 			log.Print("State change for website '" + website.Url + "'")
-			for _, email := range website.Emails {
-				log.Print("Send email to: " + email)
+			err = ww.sendEmails(website)
+
+			if err != nil {
+				ww.repo.PutWebsiteState(website, oldState)
 			}
 		}
 	} else {
 		log.Print("Website '" + website.Url + "' hasn't been visited.")
 		ww.updateCurrentState(website)
 	}
+}
+
+func (ww WebsiteWatcher) sendEmails(website Website) error {
+	for _, email := range website.Emails {
+		err := ww.ec.Send(email, "New activity", website.Url)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (ww WebsiteWatcher) updateCurrentState(website Website) (string, error) {
